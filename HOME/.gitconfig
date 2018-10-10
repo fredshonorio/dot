@@ -1,0 +1,33 @@
+[user]
+    email = 2962247+fredshonorio@users.noreply.github.com
+    name = Fred Honorio
+
+[alias]
+    g = cola
+    unpushed = log --branches --not --remotes --simplify-by-decoration --decorate --oneline
+    pl = pull
+    plo = pull origin
+    p = push
+    po = push origin
+    co = checkout
+    b = branch
+    ba = branch -a
+    lg = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr %an)%Creset' --abbrev-commit --date=relative
+    untracked = ls-files --others --exclude-standard
+[core]
+    editor = emacs
+
+[push]
+    default = simple
+[cola]
+	spellcheck = false
+[gui]
+	editor = emacs
+[merge]
+	tool = meld
+[pull]
+	ff = only
+[diff]
+	tool = meld
+[status]
+	showUntrackedFiles = all

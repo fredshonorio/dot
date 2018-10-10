@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+import sys, os
+from subprocess import PIPE, Popen
+from os.path import join, isdir, abspath
+
+CSI, RESET = "\x1B[", "\x1B[0m"
+FG, BG = 30, 40
+BLACK, RED, GREEN, YELLOW = range(0, 4)
+ERR, OK, WARN = (RED, BLACK), (BLACK, GREEN), (BLACK, YELLOW)
+def term(f, b, st): return CSI + "%d;%dm%s" % (FG + f, BG + b, st) + RESET
+
+def call(cmd): # list[str]:cmd -> (str:out, str:err)
+    return Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+
+def update(tup, idx, f): # updates tuple at index
+    return tup[:idx] + (f(tup[idx]),) + tup[idx + 1:]
+
+def current_branch():
+    o, e = call(["git", "symbolic-ref", "--short", "HEAD"])
+    if e: return None, e
+    else: return o.split("\n")[0], None # should be one line of output
+
+def has_dot_git(path): return isdir(join(path, ".git/"))
+
+def has_remotes(path):
+    o, e = call(["git", "-C", path, "remote"])
+    return not bool(e) and any(x for x in o.split("\n"))
+
+def is_up_to_date(branch): # str:branch -> (up_to_date:bool, diff:str, error:str)
+    o, e = call(["git", "log", "origin/%s..%s" % (branch, branch), "--pretty=oneline"])
+    if e: return None, None, str(e)
+    else:
+        rem_diff = len(o.splitlines())       # count remove diff lines
+        o_stat, _ = call(["git", "status", "--porcelain"]) # erm...
+        tree_diff = len(o_stat.splitlines()) # count tree diff lines
+        diff_str = "%d diff" % rem_diff + (" (dirty)" if tree_diff > 0 else "")
+        return rem_diff == 0 and tree_diff == 0, diff_str, None
+
+def dir_status(d):
+    os.chdir(d)
+    branch, err_b = current_branch()
+    up_to_date, diff, err_u = is_up_to_date(branch)
+    os.chdir(cwd)
+    return d, branch, up_to_date, diff, err_b, err_u
+
+def status_string(t):
+    d, branch, up_to_date, diff, err_b, err_u = t
+    err = err_b or err_u
+    if err:          stat = term(*ERR, "error")
+    elif up_to_date: stat = term(*OK, "Up-to-date")
+    else:            stat = term(*WARN, diff)
+    line = "%s (%s) " % (d, branch)
+    return line, stat, err, up_to_date
+
+def filter_for_args(all_flag=False, skip_error=False):
+    def p(dir_status): # by default we show errors and hide up to date repos
+        _, _, err, up_to_date = dir_status
+        if all_flag:           return True
+        if skip_error and err: return False
+        return err or not up_to_date
+    return p
+
+cwd = abspath(os.getcwd())
+all_flag =        any(x in sys.argv for x in ["--all", "-a"])
+skip_error_flag = any(x in sys.argv for x in ["--skip-error", "-s"])
+
+dirs = filter(has_remotes,
+       filter(has_dot_git,
+       filter(isdir,
+       os.listdir("."))))
+
+statuses = list(
+           filter(filter_for_args(all_flag, skip_error_flag),
+           map(status_string,
+           map(dir_status,
+           dirs))))
+
+max_len = 0 if not statuses else max(map(lambda x: len(x[0]), statuses))
+padded =  map(lambda x: update(x, 0, lambda x: x.ljust(max_len)), statuses)
+
+for s in padded: print(*s[:2])
