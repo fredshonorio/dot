@@ -31,6 +31,7 @@ object Main extends IOApp {
 
     // ssh
     mergeVault("ssh", Abs.~ / ".ssh"),
+    // TODO: sshrc
 
     // browser
     aur("google-chrome-beta", "firefox-beta-bin", "brave-bin"),
@@ -58,6 +59,7 @@ object Main extends IOApp {
     // dev
     pac("jdk8-openjdk", "scala", "sbt", "cloc", "gradle"),
     aur("ammonite", "dbeaver", "intellij-idea-community-edition", "slack-desktop"),
+    merge(autostart / "slack.desktop"),
     mergeVault("gradle", Abs.~ / ".gradle", _.filename == "gradle.properties"),
 
     // ops
