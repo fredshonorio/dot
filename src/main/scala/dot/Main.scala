@@ -11,6 +11,7 @@ object Main extends IOApp {
   val Sym = Symbolic
   val Abs = AbsPath
   val vault = Abs.~ / "Tresors" / "vault2"
+  val autostart = Sym.~ / ".config" / "autostart"
 
   def mergeVault[F[_]: Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
@@ -37,6 +38,8 @@ object Main extends IOApp {
     // backup
     pac("veracrypt", "pass"),
     aur("securefs"),
+    // tresorit
+    // TODO
 
     // git
     pac("git", "gitg", "tk", "aspell-en"),
@@ -84,9 +87,11 @@ object Main extends IOApp {
     ),
     merge(Sym.~ / ".xmobarrc"),
     merge(Sym.~ / ".xmonad" / "xmonad.hs"),
+    merge(autostart / "Xmonad.desktop"),
     merge(Sym.~ / ".config" / "rofi/config.rasi"),
     merge(Sym.~ / ".config" / "fontconfig" / "conf.d/01-emoji.conf"),
     merge(Sym.~ / ".trayer.sh"),
+    merge(autostart / "trayer.desktop"),
 
     pac("playerctl", "xbindkeys", "xfce4-volumed-pulse"),
 
@@ -103,7 +108,7 @@ object Main extends IOApp {
     // quirks
     forHost("liminal") {
       aur("powertop")
-    }
+    },
   ).sequence_
 
   override def run(args: List[String]): IO[ExitCode] = {
