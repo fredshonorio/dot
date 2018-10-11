@@ -16,7 +16,6 @@ This is a list of things that have to be done manually, for now:
 - setup brave sync
 - setup firefox sync
 - setup chrome sync
-- setup tresorit
 - setup chamber, aws-vault
 - uninstall some apps (steam-manjaro, libreoffice-still)
 - replace xfwm4 with  xmonad

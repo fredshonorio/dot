@@ -39,8 +39,9 @@ object Main extends IOApp {
     // backup
     pac("veracrypt", "pass"),
     aur("securefs"),
-    // tresorit
-    // TODO
+    when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
+      sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
+    },
 
     // git
     pac("git", "gitg", "tk", "aspell-en"),
@@ -77,9 +78,12 @@ object Main extends IOApp {
     systemd.enable("docker"),
 
     // desktop
+    pac("gtk3-classic"), // fix issues with XEMBED tray icons introduced after gtk3-3.22.30-1
     modprobe.blacklist("uvcvideo"),
     modprobe.blacklist("pcspkr"), // disable webcam and speaker
     pac("redshift", "nemo"),
+    merge(Sym.~ / ".config" / "redshift.conf"),
+    merge(autostart / "redshift-gtk.desktop"),
     pac("xmonad", "xmonad-contrib", "xmobar", "rofi", "feh", "trayer"),
     aur(
       "ttf-iosevka",

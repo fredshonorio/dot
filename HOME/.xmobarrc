@@ -10,7 +10,7 @@ Config {
    -- orange #FD971F
    -- red    #F92672
 
-   , position = Static { xpos = 0, ypos = 0, width = 1787, height = 22 }
+   , position = Static { xpos = 0, ypos = 0, width = 1787, height = 25 }
 --   , border =       BottomB
 --   , borderColor =  "#646464"
 
