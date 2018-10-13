@@ -7,6 +7,9 @@ import dot.syntax.{when, not}
 
 object misc {
 
+  def host[F[_] : Sync]()(implicit shell: Shell[F]): F[String] =
+    shell.slurp("hostname").out.map(_.trim())
+
   def forHost[F[_] : Sync](hostname: String)(action: F[Unit])(implicit shell: Shell[F]): F[Unit] =
     when(shell.slurp("hostname").out.map(_.trim() == hostname))(action)
 

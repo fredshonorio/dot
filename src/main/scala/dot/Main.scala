@@ -4,7 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp, Sync}
 import cats.implicits._
 import dot.exec.Shell
 import dot.impl._
-import dot.misc.{aur, forHost, merge, modprobe, pac, sys, systemd}
+import dot.misc.{aur, forHost, merge, modprobe, pac, sys, systemd, host}
 import dot.syntax._
 
 object Main extends IOApp {
@@ -26,6 +26,11 @@ object Main extends IOApp {
       merge(autostart / "signal.desktop"),
       systemd.enable("docker")
     ).sequence_
+
+    val quirks = host() >>= {
+      case "liminal" => aur("powertop")
+      case "warrant" => warrantQuirks
+    }
 
     List(
       // bootstrap
@@ -124,14 +129,6 @@ object Main extends IOApp {
 
       // misc apps
       pac("vlc", "smplayer", "android-udev"),
-
-      // quirks
-      forHost("liminal") {
-        aur("powertop")
-      },
-
-      forHost("warrant")(warrantQuirks),
-
     ).sequence_
   }
 
