@@ -2,7 +2,7 @@ package dot
 
 import cats.effect.{ExitCode, IO, IOApp, Sync}
 import cats.implicits._
-import dot.exec.Shell
+import dot.exec.{Exec, Shell}
 import dot.impl._
 import dot.misc.{aur, host, merge, modprobe, pac, sys, systemd}
 import dot.syntax._
@@ -17,7 +17,12 @@ object Main extends IOApp {
   def mergeVault[F[_] : Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
 
-  def install[F[_] : Sync](implicit p: Pkg[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = {
+  def userBinary[F[_]: Sync](name: String)(implicit f: Files[F]): F[Unit] = {
+    val pth = bin / name
+    merge(pth) *> f.makeExecutable(pth.dst)
+  }
+
+  def install[F[_] : Sync](implicit p: Pkg[F], ex: Exec[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = {
     val warrantQuirks = List(
       pac("playerctl"),
       pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc"),
@@ -58,12 +63,12 @@ object Main extends IOApp {
       when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
         sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
       },
-      merge(bin / "tresorit.sh"),
+      userBinary("tresorit.sh"),
       merge(autostart / "tresorit.desktop"),
 
       // git
       pac("git", "gitg", "tk", "aspell-en"),
-      merge(bin / "unpushed"),
+      userBinary("unpushed"),
       merge(Sym.~ / ".gitconfig"),
       aur("git-cola"),
 
@@ -112,7 +117,7 @@ object Main extends IOApp {
       merge(autostart / "Xmonad.desktop"),
       merge(Sym.~ / ".config" / "rofi" / "config.rasi"),
       merge(Sym.~ / ".config" / "fontconfig" / "conf.d" / "01-emoji.conf"),
-      merge(bin / "trayer.sh"),
+      userBinary("trayer.sh"),
       merge(autostart / "trayer.desktop"),
 
       pac("compton"),
@@ -121,7 +126,7 @@ object Main extends IOApp {
       aur("spotify"),
 
       aur("signal-desktop-bin"),
-      merge(bin / "signal.sh"),
+      userBinary("signal.sh"),
 
       // ssd
       pac("util-linux"),

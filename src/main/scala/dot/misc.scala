@@ -3,15 +3,12 @@ package dot
 import cats.effect.Sync
 import cats.implicits._
 import dot.exec.Shell
-import dot.syntax.{when, not}
+import dot.syntax.{not, when}
 
 object misc {
 
   def host[F[_] : Sync]()(implicit shell: Shell[F]): F[String] =
     shell.slurp("hostname").out.map(_.trim())
-
-  def forHost[F[_] : Sync](hostname: String)(action: F[Unit])(implicit shell: Shell[F]): F[Unit] =
-    when(shell.slurp("hostname").out.map(_.trim() == hostname))(action)
 
   def aur[F[_] : Sync](pkgs: String*)(implicit p: Pkg[F]): F[Unit] = pkgs.toList.traverse_(p.aur)
 

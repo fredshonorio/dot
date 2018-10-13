@@ -87,6 +87,11 @@ object impl {
     import java.io.File
     import java.nio.file.{Paths, Files => JFiles}
 
+    override def makeExecutable(path: AbsPath) : F[Unit] =
+      when(ex.interactive("test", "-x", path.raw).failed) {
+        ex.interactive("chmod", "+x", path.raw).attempt
+      }
+
     override def exists(path: AbsPath): F[Boolean] = Sync[F].delay(new File(path.raw).exists())
 
     private def filesEqual(a: AbsPath, b: AbsPath): F[Boolean] =

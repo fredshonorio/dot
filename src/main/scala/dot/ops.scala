@@ -73,6 +73,7 @@ trait Pkg[F[_]] {
 }
 
 trait Files[F[_]] {
+  def makeExecutable(path: AbsPath): F[Unit]
   def list(path: AbsPath): F[List[AbsPath]]
   def exists(path: AbsPath): F[Boolean]
   def merge(from: AbsPath, to: AbsPath): F[Unit]
