@@ -12,7 +12,7 @@ import XMonad.Hooks.DynamicLog     (xmobarPP, xmobarColor, dynamicLogWithPP, PP(
 import XMonad.Hooks.ManageDocks    (avoidStruts)
 import XMonad.Hooks.ManageHelpers  (doFullFloat, isFullscreen)
 import XMonad.Hooks.Place          (fixed, placeHook)
-import XMonad.Layout               (Full(..), Tall(..), Mirror(..))
+import XMonad.Layout               (Full(..), Tall(..))
 import XMonad.Layout.Grid          (Grid(..))
 import XMonad.Layout.ComboP        (SwapWindow(..), Property(..), combineTwoP)
 import XMonad.Layout.TwoPane       (TwoPane(..))
@@ -44,15 +44,15 @@ main = do
     , normalBorderColor  = mBackground
     , focusedBorderColor = mForeground
     , startupHook        = startup
-    , logHook            = xmobarHook xmobarProcess
+    , logHook            = xmobarHook xmobarProcess <+> transparencyHook
     , layoutHook         = avoidStruts . smartBorders $ layouts
     , manageHook         = manageHooks
     }
 
 manageHooks = composeAll
-  [ isFullscreen              --> doFullFloat -- without this vlc doesn't correctly come out of full screen
-  , wmName  =? "sakura_float" --> placeHook (fixed (0.5, 0.5)) <+> doFullFloat
-  , className =? "trayer"    --> doIgnore
+  [ isFullscreen                --> doFullFloat -- without this vlc doesn't correctly come out of full screen
+  , wmName    =? "sakura_float" --> placeHook (fixed (0.5, 0.5)) <+> doFullFloat
+  , className =? "trayer"       --> doIgnore
   ]
   where
     wmName = stringProperty "WM_NAME"
@@ -79,7 +79,7 @@ myKeys (XConfig {modMask = mod}) = M.fromList $
     , ((noModMask        , xK_Print), spawn "xfce4-screenshooter --fullscreen")
     ]
 
-wallpapers = "$HOME/SpiderOak\\ Hive/wallpapers/*" 
+wallpapers = "$HOME/Tresors/wallpapers/*"
 
 startup = setWMName "LG3D"                                          -- required for java apps
           >> spawnHere ("feh --randomize --bg-fill " ++ wallpapers) -- load random wallpaper

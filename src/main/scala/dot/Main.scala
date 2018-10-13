@@ -99,6 +99,9 @@ object Main extends IOApp {
     merge(Sym.~ / ".trayer.sh"),
     merge(autostart / "trayer.desktop"),
 
+    pac("compton"),
+    merge(autostart / "compton.desktop"),
+
     pac("playerctl", "xbindkeys", "xfce4-volumed-pulse"),
 
     merge(Sym.~ / ".xbindkeysrc"),

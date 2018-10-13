@@ -1,7 +1,7 @@
 -- https://wiki.archlinux.org/index.php/Xmobar
 Config { 
    -- appearance
-     font =         "xft:Bitstream Vera Sans Mono:size=11:antialias=true"
+     font =         "xft:Bitstream Vera Sans Mono:size=12:antialias=true"
    , fgColor =      "#8F908A"
    , bgColor =      "#272822"
 
@@ -10,14 +10,12 @@ Config {
    -- orange #FD971F
    -- red    #F92672
 
-   , position = Static { xpos = 0, ypos = 0, width = 1787, height = 25 }
---   , border =       BottomB
---   , borderColor =  "#646464"
+   , position = Static { xpos = 0, ypos = 0, width = 1749, height = 25 }
 
    -- layout
    , sepChar =  "%"   -- delineator between plugin names and straight text
    , alignSep = "}{"  -- separator between left-right alignment
-   , template = "%StdinReader% }{ %multicpu% | %coretemp% | %memory% | %date% %battery%"
+   , template = "%StdinReader% }{ %multicpu% | %coretemp% | %memory% | %date% | %battery%"
 
    -- general behavior
    , lowerOnStart =     True    -- send to bottom of window stack on start
@@ -78,17 +76,17 @@ Config {
                              , "--high"     , "#8F908A"
 
                              , "--" -- battery specific options
-                                       -- discharging status
-                                       , "-o"	, "<left>% (<timeleft>)"
-                                       -- AC "on" status
-                                       , "-O"	, "<fc=#E6DB74>Charging</fc>"
-                                       -- charged status
-                                       , "-i"	, "<fc=#A6E22E>Charged</fc>"
+                             -- discharging status
+                             , "-o" , "<left>% (<timeleft>)"
+                             -- AC "on" status
+                             , "-O" , "<fc=#E6DB74>Charging</fc>"
+                             -- charged status
+                             , "-i" , "<fc=#A6E22E>Charged</fc>"
                              ] 50
 
         -- time and date indicator 
         --   (%F = y-m-d date, %a = day of week, %T = h:m:s time)
-        , Run Date           "<fc=#ABABAB>%F (%a) %T</fc>" "date" 10
+        , Run Date           "<fc=#ABABAB>%F | %T</fc>" "date" 10
         , Run StdinReader
         ]
    }
