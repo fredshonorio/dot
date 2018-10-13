@@ -71,17 +71,15 @@ object impl {
     private def installed(pkg: String): F[Boolean] =
       exec.slurp("pacman", "-Q", pkg).succeeded
 
-    private def install(app: String, pkg: String): F[Unit] =
-      when(not(installed(pkg))) {
-        out.println(s"Installing $pkg") *>
-          exec.interactive("sudo", app, "-S", pkg, "--needed").attempt
-      }
+    private def ifNotInstalled(pkg: String)(action: F[Unit]): F[Unit] =
+      when(not(installed(pkg)))(out.println(s"Installing $pkg") *> action)
 
     override def aur(pkg: String): F[Unit] =
-      install("trizen", pkg)
+      ifNotInstalled(pkg)(exec.interactive("trizen", "-S", pkg, "--needed").attempt)
 
     override def pac(pkg: String): F[Unit] =
-      install("pacman", pkg)
+      ifNotInstalled(pkg)(exec.interactive("sudo", "pacman", pkg, "-S", pkg, "--needed").attempt)
+
   }
 
   class FilesImpl[F[_] : Sync](ex: Exec[F], sh: Shell[F]) extends Files[F] {
