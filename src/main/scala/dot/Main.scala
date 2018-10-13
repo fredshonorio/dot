@@ -12,6 +12,7 @@ object Main extends IOApp {
   val Abs = AbsPath
   val vault = Abs.~ / "Tresors" / "vault2"
   val autostart = Sym.~ / ".config" / "autostart"
+  val bin = Sym.~ / ".bin"
 
   def mergeVault[F[_]: Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
@@ -42,10 +43,12 @@ object Main extends IOApp {
     when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
       sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
     },
+    merge(bin / "tresorit.sh"),
+    merge(autostart / "tresorit.desktop"),
 
     // git
     pac("git", "gitg", "tk", "aspell-en"),
-    merge(Sym.~ / ".bin" / "unpushed"),
+    merge(bin / "unpushed"),
     merge(Sym.~ / ".gitconfig"),
     aur("git-cola"),
 
@@ -96,7 +99,7 @@ object Main extends IOApp {
     merge(autostart / "Xmonad.desktop"),
     merge(Sym.~ / ".config" / "rofi/config.rasi"),
     merge(Sym.~ / ".config" / "fontconfig" / "conf.d/01-emoji.conf"),
-    merge(Sym.~ / ".trayer.sh"),
+    merge(bin / "trayer.sh"),
     merge(autostart / "trayer.desktop"),
 
     pac("compton"),
@@ -106,6 +109,10 @@ object Main extends IOApp {
 
     merge(Sym.~ / ".xbindkeysrc"),
     aur("spotify"),
+
+    aur("signal-desktop-bin"),
+    merge(bin / "signal.sh"),
+    merge(autostart / "signal.desktop"),
 
     // ssd
     pac("util-linux"),

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+signal-desktop --use-tray-icon
