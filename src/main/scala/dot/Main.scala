@@ -4,7 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp, Sync}
 import cats.implicits._
 import dot.exec.Shell
 import dot.impl._
-import dot.misc.{aur, forHost, merge, modprobe, pac, sys, systemd, host}
+import dot.misc.{aur, host, merge, modprobe, pac, sys, systemd}
 import dot.syntax._
 
 object Main extends IOApp {
@@ -14,7 +14,7 @@ object Main extends IOApp {
   val autostart = Sym.~ / ".config" / "autostart"
   val bin = Sym.~ / ".bin"
 
-  def mergeVault[F[_]: Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
+  def mergeVault[F[_] : Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
 
   def install[F[_] : Sync](implicit p: Pkg[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = {
@@ -110,8 +110,8 @@ object Main extends IOApp {
       merge(Sym.~ / ".xmobarrc"),
       merge(Sym.~ / ".xmonad" / "xmonad.hs"),
       merge(autostart / "Xmonad.desktop"),
-      merge(Sym.~ / ".config" / "rofi/config.rasi"),
-      merge(Sym.~ / ".config" / "fontconfig" / "conf.d/01-emoji.conf"),
+      merge(Sym.~ / ".config" / "rofi" / "config.rasi"),
+      merge(Sym.~ / ".config" / "fontconfig" / "conf.d" / "01-emoji.conf"),
       merge(bin / "trayer.sh"),
       merge(autostart / "trayer.desktop"),
 
