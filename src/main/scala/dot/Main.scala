@@ -17,115 +17,123 @@ object Main extends IOApp {
   def mergeVault[F[_]: Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
 
-  def install[F[_] : Sync](implicit p: Pkg[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = List(
-    // bootstrap
-    f.replaceLine(Abs.ROOT / "etc" / "makepkg.conf", "PKGEXT='.pkg.tar.xz'", "PKGEXT='.pkg.tar'", sudoWrite = true), // disable compression for packages built from aur
-    pac("meld", "git", "trizen"),
+  def install[F[_] : Sync](implicit p: Pkg[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = {
+    val warrantQuirks = List(
+      pac("playerctl"),
+      pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc"),
+      pac("xfce4-volumed-pulse"), // either this or pa-applet
+      merge(autostart / "slack.desktop"),
+      merge(autostart / "signal.desktop"),
+      systemd.enable("docker")
+    ).sequence_
 
-    // shell
-    pac("zsh", "bat", "lsof", "htop", "sakura", "the_silver_searcher"),
-    aur("powerline-fonts", "prezto-git", "z", "entr"),
-    merge(Sym.~ / ".zshrc"),
-    merge(Sym.~ / ".profile"),
-    merge(Sym.~ / ".config" / "sakura" / "sakura.conf"),
-    sys.shell("/bin/zsh"),
+    List(
+      // bootstrap
+      f.replaceLine(Abs.ROOT / "etc" / "makepkg.conf", "PKGEXT='.pkg.tar.xz'", "PKGEXT='.pkg.tar'", sudoWrite = true), // disable compression for packages built from aur
+      pac("meld", "git", "trizen"),
 
-    // ssh
-    mergeVault("ssh", Abs.~ / ".ssh"),
-    // TODO: sshrc
+      // shell
+      pac("zsh", "bat", "lsof", "htop", "sakura", "the_silver_searcher"),
+      aur("powerline-fonts", "prezto-git", "z", "entr"),
+      merge(Sym.~ / ".zshrc"),
+      merge(Sym.~ / ".profile"),
+      merge(Sym.~ / ".config" / "sakura" / "sakura.conf"),
+      sys.shell("/bin/zsh"),
 
-    // browser
-    aur("google-chrome-beta", "firefox-beta-bin", "brave-bin"),
+      // ssh
+      mergeVault("ssh", Abs.~ / ".ssh"),
+      // TODO: sshrc
 
-    // backup
-    pac("veracrypt", "pass"),
-    aur("securefs"),
-    when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
-      sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
-    },
-    merge(bin / "tresorit.sh"),
-    merge(autostart / "tresorit.desktop"),
+      // browser
+      aur("google-chrome-beta", "firefox-beta-bin", "brave-bin"),
 
-    // git
-    pac("git", "gitg", "tk", "aspell-en"),
-    merge(bin / "unpushed"),
-    merge(Sym.~ / ".gitconfig"),
-    aur("git-cola"),
+      // backup
+      pac("veracrypt", "pass"),
+      aur("securefs"),
+      when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
+        sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
+      },
+      merge(bin / "tresorit.sh"),
+      merge(autostart / "tresorit.desktop"),
 
-    // emacs
-    pac("emacs"),
-    when(not(f.exists(Abs.~ / ".emacs.d" / "core" / "prelude-core.el"))) {
-      sh.interactive("curl -L https://github.com/bbatsov/prelude/raw/master/utils/installer.sh | sh").attempt
-    },
-    merge(Sym.~ / ".emacs.d" / "personal" / "personal.el"),
-    merge(Sym.~ / ".emacs.d" / "personal" / "custom.el"),
+      // git
+      pac("git", "gitg", "tk", "aspell-en"),
+      merge(bin / "unpushed"),
+      merge(Sym.~ / ".gitconfig"),
+      aur("git-cola"),
 
-    // dev
-    pac("jdk8-openjdk", "scala", "sbt", "cloc", "gradle"),
-    aur("ammonite", "dbeaver", "intellij-idea-community-edition", "slack-desktop"),
-    merge(autostart / "slack.desktop"),
-    mergeVault("gradle", Abs.~ / ".gradle", _.filename == "gradle.properties"),
+      // emacs
+      pac("emacs"),
+      when(not(f.exists(Abs.~ / ".emacs.d" / "core" / "prelude-core.el"))) {
+        sh.interactive("curl -L https://github.com/bbatsov/prelude/raw/master/utils/installer.sh | sh").attempt
+      },
+      merge(Sym.~ / ".emacs.d" / "personal" / "personal.el"),
+      merge(Sym.~ / ".emacs.d" / "personal" / "custom.el"),
 
-    // ops
-    pac("python2-pip", "aws-cli"),
-    aur("aws-vault"),
-    when(sh.slurp("pip2 show Fabric").failed) {
-      sh.interactive("sudo pip2 install fabric==1.13.1").attempt
-    },
+      // dev
+      pac("jdk8-openjdk", "scala", "sbt", "cloc", "gradle"),
+      aur("ammonite", "dbeaver", "intellij-idea-community-edition", "slack-desktop"),
+      mergeVault("gradle", Abs.~ / ".gradle", _.filename == "gradle.properties"),
 
-    merge(Sym.~ / ".aws" / "config"),
-    mergeVault("aws", Abs.~ / ".aws", _.filename == "credentials"),
+      // ops
+      pac("python2-pip", "aws-cli"),
+      aur("aws-vault"),
+      when(sh.slurp("pip2 show Fabric").failed) {
+        sh.interactive("sudo pip2 install fabric==1.13.1").attempt
+      },
 
-    pac("docker", "docker-compose"),
-    sys.addUserToGroup("docker"),
-    systemd.enable("docker"),
+      merge(Sym.~ / ".aws" / "config"),
+      mergeVault("aws", Abs.~ / ".aws", _.filename == "credentials"),
 
-    // desktop
-    pac("gtk3-classic"), // fix issues with XEMBED tray icons introduced after gtk3-3.22.30-1
-    modprobe.blacklist("uvcvideo"),
-    modprobe.blacklist("pcspkr"), // disable webcam and speaker
-    pac("redshift", "nemo"),
-    merge(Sym.~ / ".config" / "redshift.conf"),
-    merge(autostart / "redshift-gtk.desktop"),
-    pac("xmonad", "xmonad-contrib", "xmobar", "rofi", "feh", "trayer"),
-    aur(
-      "ttf-iosevka",
-      "noto-fonts-emoji",
-      "stlarch_icons", // icons installed in /usr/share/icons/stlarch_ico
-      "rofi-dmenu" // themes in /usr/share/rofi/
-    ),
-    merge(Sym.~ / ".xmobarrc"),
-    merge(Sym.~ / ".xmonad" / "xmonad.hs"),
-    merge(autostart / "Xmonad.desktop"),
-    merge(Sym.~ / ".config" / "rofi/config.rasi"),
-    merge(Sym.~ / ".config" / "fontconfig" / "conf.d/01-emoji.conf"),
-    merge(bin / "trayer.sh"),
-    merge(autostart / "trayer.desktop"),
+      pac("docker", "docker-compose"),
+      sys.addUserToGroup("docker"),
 
-    pac("compton"),
-    merge(autostart / "compton.desktop"),
+      // desktop
+      pac("gtk3-classic"), // fix issues with XEMBED tray icons introduced after gtk3-3.22.30-1
+      modprobe.blacklist("uvcvideo"),
+      modprobe.blacklist("pcspkr"), // disable webcam and speaker
+      pac("redshift", "nemo"),
+      merge(Sym.~ / ".config" / "redshift.conf"),
+      merge(autostart / "redshift-gtk.desktop"),
+      pac("xmonad", "xmonad-contrib", "xmobar", "rofi", "feh", "trayer"),
+      aur(
+        "ttf-iosevka",
+        "noto-fonts-emoji",
+        "stlarch_icons", // icons installed in /usr/share/icons/stlarch_ico
+        "rofi-dmenu" // themes in /usr/share/rofi/
+      ),
+      merge(Sym.~ / ".xmobarrc"),
+      merge(Sym.~ / ".xmonad" / "xmonad.hs"),
+      merge(autostart / "Xmonad.desktop"),
+      merge(Sym.~ / ".config" / "rofi/config.rasi"),
+      merge(Sym.~ / ".config" / "fontconfig" / "conf.d/01-emoji.conf"),
+      merge(bin / "trayer.sh"),
+      merge(autostart / "trayer.desktop"),
 
-    pac("playerctl", "xbindkeys", "xfce4-volumed-pulse"),
+      pac("compton"),
+      merge(autostart / "compton.desktop"),
 
-    merge(Sym.~ / ".xbindkeysrc"),
-    aur("spotify"),
+      aur("spotify"),
 
-    aur("signal-desktop-bin"),
-    merge(bin / "signal.sh"),
-    merge(autostart / "signal.desktop"),
+      aur("signal-desktop-bin"),
+      merge(bin / "signal.sh"),
 
-    // ssd
-    pac("util-linux"),
-    systemd.enable("fstrim.timer"),
+      // ssd
+      pac("util-linux"),
+      systemd.enable("fstrim.timer"),
 
-    // misc apps
-    pac("vlc", "smplayer", "android-udev"),
+      // misc apps
+      pac("vlc", "smplayer", "android-udev"),
 
-    // quirks
-    forHost("liminal") {
-      aur("powertop")
-    },
-  ).sequence_
+      // quirks
+      forHost("liminal") {
+        aur("powertop")
+      },
+
+      forHost("warrant")(warrantQuirks),
+
+    ).sequence_
+  }
 
   override def run(args: List[String]): IO[ExitCode] = {
     implicit val ex: ExecImpl[IO] = new ExecImpl[IO]
