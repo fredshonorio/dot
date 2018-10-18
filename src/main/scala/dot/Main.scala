@@ -86,7 +86,7 @@ object Main extends IOApp {
       mergeVault("gradle", Abs.~ / ".gradle", _.filename == "gradle.properties"),
 
       // ops
-      pac("python2-pip", "aws-cli"),
+      pac("python2-pip", "aws-cli", "terraform"),
       aur("aws-vault"),
       when(sh.slurp("pip2 show Fabric").failed) {
         sh.interactive("sudo pip2 install fabric==1.13.1").attempt
@@ -124,9 +124,6 @@ object Main extends IOApp {
       merge(autostart / "compton.desktop"),
 
       aur("spotify"),
-
-      aur("signal-desktop-bin"),
-      userBinary("signal.sh"),
 
       // ssd
       pac("util-linux"),
