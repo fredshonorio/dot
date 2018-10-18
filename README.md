@@ -12,12 +12,12 @@ Everything else is installed by the script itself. In this directory run `$ sbt 
 
 This is a list of things that have to be done manually, for now:
 
-- chmod +x ~/.bin/unpushed
 - setup brave sync
 - setup firefox sync
 - setup chrome sync
-- setup chamber, aws-vault
+- setup chamber, aws-vault (without file backend)
 - uninstall some apps (steam-manjaro, libreoffice-still)
+- remove some xfce keybinds
 - replace xfwm4 with  xmonad
   - disable super key binding
   - disable xfce startup stuff
