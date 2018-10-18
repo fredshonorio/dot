@@ -24,3 +24,6 @@ source ~/.profile
 [[ -r "/usr/share/z/z.sh" ]] && source /usr/share/z/z.sh
 
 eval "$(direnv hook zsh)"
+
+source /usr/share/undistract-me/long-running.bash
+notify_when_long_running_commands_finish_install
