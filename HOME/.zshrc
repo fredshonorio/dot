@@ -22,3 +22,5 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 source ~/.profile
 
 [[ -r "/usr/share/z/z.sh" ]] && source /usr/share/z/z.sh
+
+eval "$(direnv hook zsh)"
