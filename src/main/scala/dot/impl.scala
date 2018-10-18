@@ -219,11 +219,21 @@ object impl {
       }
 
       def hashFiles(root: AbsPath): F[MD5] =
-        f.list(root).map(_.filter(hashedFiles)) >>= hashAll
+        for {
+          files <- f.list(root).map(_.filter(hashedFiles))
+          hash <- hashAll(files)
+          _ <- o.println("Hashing:\n\t" + files.map(_.raw).mkString("\n\t") + "\n" + hash.toString)
+        } yield hash
+
+      val read =
+        for {
+          hash <- readHash(hashFile)
+          _ <- o.println(s"Cached hash for ${veraVolume.raw}\n${hash.toString}")
+        } yield hash
 
       val shouldUpdate = f.exists(hashFile)
         .ifM(
-          (hashFiles(dst), readHash(hashFile)).mapN((dstHash, previousHash) => dstHash != previousHash),
+          (hashFiles(dst), read).mapN((dstHash, previousHash) => dstHash != previousHash),
           Sync[F].pure(true)
         )
 
