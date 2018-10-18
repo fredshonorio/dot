@@ -28,7 +28,6 @@ object Main extends IOApp {
       pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc"),
       pac("xfce4-volumed-pulse"), // either this or pa-applet
       merge(autostart / "slack.desktop"),
-      merge(autostart / "signal.desktop"),
       systemd.enable("docker")
     ).sequence_
 
