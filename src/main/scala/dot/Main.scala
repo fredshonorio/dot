@@ -43,7 +43,7 @@ object Main extends IOApp {
 
       // shell
       pac("zsh", "bat", "lsof", "htop", "sakura", "the_silver_searcher"),
-      aur("powerline-fonts", "prezto-git", "z", "entr", "direnv", "undistract-me-git"),
+      aur("powerline-fonts", "prezto-git", "z", "entr", "direnv"),
       merge(Sym.~ / ".zshrc"),
       merge(Sym.~ / ".profile"),
       merge(Sym.~ / ".config" / "sakura" / "sakura.conf"),
