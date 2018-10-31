@@ -50,7 +50,7 @@ object Main extends IOApp {
       sys.shell("/bin/zsh"),
 
       // ssh
-      mergeVault("ssh", Abs.~ / ".ssh"),
+      mergeVault("ssh", Abs.~ / ".ssh", _.filename != "known_hosts"),
       // TODO: sshrc
 
       // browser
@@ -86,7 +86,7 @@ object Main extends IOApp {
 
       // ops
       pac("python2-pip", "aws-cli", "terraform"),
-      aur("aws-vault"),
+      aur("aws-vault", "awslogs"),
       when(sh.slurp("pip2 show Fabric").failed) {
         sh.interactive("sudo pip2 install fabric==1.13.1").attempt
       },

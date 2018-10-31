@@ -42,7 +42,7 @@ main = do
     , keys               = myKeys <+> keys desktopConfig
     , borderWidth        = 5
     , normalBorderColor  = mBackground
-    , focusedBorderColor = mForeground
+    , focusedBorderColor = mRed
     , startupHook        = startup
     , logHook            = xmobarHook xmobarProcess <+> transparencyHook
     , layoutHook         = avoidStruts . smartBorders $ layouts
@@ -85,7 +85,7 @@ startup = setWMName "LG3D"                                          -- required 
           >> spawnHere ("feh --randomize --bg-fill " ++ wallpapers) -- load random wallpaper
 
 -- transparency for inactive windows
-transparencyHook = fadeInactiveLogHook 0.95 -- percent
+transparencyHook = fadeInactiveLogHook 0.97 -- percent
 
 xmobarHook xmobarProc = dynamicLogWithPP $                 -- setup xmonad to output status to xmobar
   xmobarPP { ppOutput = hPutStrLn xmobarProc               -- write message to xmobar stdin
