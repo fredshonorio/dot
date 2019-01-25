@@ -32,7 +32,7 @@ object Main extends IOApp {
     ).sequence_
 
     val quirks = host() >>= {
-      case "liminal" => aur("powertop")
+      case "liminal" => aur("powertop") *> pac("android-udev")
       case "warrant" => warrantQuirks
     }
 
@@ -54,7 +54,7 @@ object Main extends IOApp {
       // TODO: sshrc
 
       // browser
-      aur("google-chrome-beta", "firefox-beta-bin", "brave-bin"),
+      aur("google-chrome-beta", "firefox"),
 
       // backup
       pac("veracrypt", "pass"),
@@ -128,7 +128,10 @@ object Main extends IOApp {
       systemd.enable("fstrim.timer"),
 
       // misc apps
-      pac("vlc", "smplayer", "android-udev"),
+      pac("vlc", "smplayer"),
+
+      // quirks
+      quirks,
     ).sequence_
   }
 
