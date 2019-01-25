@@ -62,7 +62,6 @@ object Main extends IOApp {
       when(not(f.exists(Abs.~ / ".local" / "share" / "tresorit"))) {
         sh.interactive("wget https://installerstorage.blob.core.windows.net/public/install/tresorit_installer.run -P ~/Downloads && sh ~/Downloads/tresorit_installer.run").attempt
       },
-      userBinary("tresorit.sh"),
       merge(autostart / "tresorit.desktop"),
 
       // git

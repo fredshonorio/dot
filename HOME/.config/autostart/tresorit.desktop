@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Tresorit
-Exec=/home/fred/.bin/tresorit.sh
+Exec=/home/fred/.local/share/tresorit/tresorit --hidden
 Terminal=false
 Type=Application
+Icon=/home/fred/.local/share/tresorit/tresorit.png
