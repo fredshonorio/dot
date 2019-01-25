@@ -6,10 +6,9 @@ export VISUAL=emacs
 export SUDO_EDITOR="emacs --no-window-system"
 export AWS_VAULT_BACKEND=secret-service
 
-PATH="$PATH:$HOME/.local/bin"
+export PATH="$HOME/bin:$PATH"
 
 alias ap='readlink -e "$1"'                                                                  # Absolute path of the argument path
-alias unpushed='~/.bin/unpushed'                                                             # git remote state of of child directories
 alias e='emacsclient -c'                                                                     # emacs (connects to emacs server)
 alias ed='emacs --daemon'                                                                    # start emacs server
 alias ek='emacsclient -e "(kill-emacs)"'                                                     # kill emacs server

@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=Trayer
-Exec=/home/fred/.bin/trayer.sh
+Exec=/home/fred/bin/run_trayer.sh
 Terminal=false
 Type=Application

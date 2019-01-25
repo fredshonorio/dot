@@ -12,7 +12,7 @@ object Main extends IOApp {
   val Abs = AbsPath
   val vault = Abs.~ / "Tresors" / "vault2"
   val autostart = Sym.~ / ".config" / "autostart"
-  val bin = Sym.~ / ".bin"
+  val bin = Sym.~ / "bin"
 
   def mergeVault[F[_] : Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
     s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
@@ -115,7 +115,7 @@ object Main extends IOApp {
       merge(autostart / "Xmonad.desktop"),
       merge(Sym.~ / ".config" / "rofi" / "config.rasi"),
       merge(Sym.~ / ".config" / "fontconfig" / "conf.d" / "01-emoji.conf"),
-      userBinary("trayer.sh"),
+      userBinary("run_trayer.sh"),
       merge(autostart / "trayer.desktop"),
 
       pac("compton"),
