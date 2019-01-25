@@ -1,3 +1,6 @@
 *.idea/
 project/target/
 target/
+.bloop/
+.metals/
+project/.bloop/
