@@ -4,7 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp, Sync}
 import cats.implicits._
 import dot.exec.{Exec, Shell}
 import dot.impl._
-import dot.misc.{aur, host, merge, modprobe, pac, sys, systemd}
+import dot.misc._
 import dot.syntax._
 
 object Main extends IOApp {
@@ -40,6 +40,7 @@ object Main extends IOApp {
       // bootstrap
       f.replaceLine(Abs.ROOT / "etc" / "makepkg.conf", "PKGEXT='.pkg.tar.xz'", "PKGEXT='.pkg.tar'", sudoWrite = true), // disable compression for packages built from aur
       pac("meld", "git", "trizen"),
+      mergeRoot(Sym.ROOT / "etc" / "pacman.d" / "hooks" / "paccache.hook"),
 
       // shell
       pac("zsh", "bat", "lsof", "htop", "sakura", "the_silver_searcher"),

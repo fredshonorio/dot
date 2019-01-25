@@ -2,6 +2,9 @@ package dot
 
 import java.nio.file.Path
 
+// a path that refers both to an absolute path in the system
+// e.g. /var/blop and the corresponding absolute path in this repository
+// e.g. /home/what..ever/dot/ROOT/var/blop
 trait Symbolic {
   def src: AbsPath
   def dst: AbsPath
@@ -66,7 +69,6 @@ object AbsPath {
   }
 }
 
-
 trait Pkg[F[_]] {
   def aur(name: String): F[Unit]
   def pac(name: String): F[Unit]
@@ -77,7 +79,7 @@ trait Files[F[_]] {
   def list(path: AbsPath): F[List[AbsPath]]
   def exists(path: AbsPath): F[Boolean]
   def merge(from: AbsPath, to: AbsPath): F[Unit]
-  def merge_(from: AbsPath, to: AbsPath): F[Unit] // not needed
+  def mergeRoot(from: AbsPath, to: AbsPath): F[Unit]
   def replaceLine(file: AbsPath, existing: String, desired: String, sudoWrite: Boolean = false): F[Unit]
   def ensureLine(file: AbsPath, desired: String, sudoWrite: Boolean = false): F[Unit]
 }

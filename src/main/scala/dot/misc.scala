@@ -16,6 +16,8 @@ object misc {
 
   def merge[F[_]](path: Symbolic)(implicit f: Files[F]): F[Unit] = f.merge(path.src, path.dst)
 
+  def mergeRoot[F[_]](path: Symbolic)(implicit f: Files[F]): F[Unit] = f.mergeRoot(path.src, path.dst)
+
   object systemd {
     def enable[F[_] : Sync](service: String)(implicit sh: Shell[F]): F[Unit] =
       when(sh.slurp(s"systemctl is-enabled $service | grep enabled").failed) {

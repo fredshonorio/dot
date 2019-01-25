@@ -104,11 +104,11 @@ object impl {
           ex.interactive("meld", from.raw, to.raw).attempt
       }
 
-    override def merge_(from: AbsPath, to: AbsPath): F[Unit] =
+    override def mergeRoot(from: AbsPath, to: AbsPath): F[Unit] =
       when(not(filesEqual(from, to))) {
-        ex.slurp("mkdir", "-p", to.dir.raw).attempt *>
-          when(not(exists(to)))(ex.slurp("touch", to.raw).attempt) *>
-          ex.interactive("meld", from.raw, to.raw).it.void
+        ex.interactive("sudo", "mkdir", "-p", to.dir.raw).attempt *>
+          when(not(exists(to)))(ex.interactive("sudo", "touch", to.raw).attempt) *>
+          ex.interactive("sudo", "meld", from.raw, to.raw).it.void
       }
 
     def safeEditFileLinesUtf8(f: AbsPath, sudoWrite: Boolean)(edit: List[String] => Either[String, List[String]]): F[Unit] =
