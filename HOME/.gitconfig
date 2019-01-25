@@ -14,11 +14,12 @@
     ba = branch -a
     lg = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr %an)%Creset' --abbrev-commit --date=relative
     untracked = ls-files --others --exclude-standard
+    remote-branch = "!newbranch() { git checkout -b $1; git branch -u origin/$1; }; newbranch"
 [core]
     editor = emacs
 
 [push]
-    default = simple
+    default = current
 [cola]
 	spellcheck = false
 [gui]
