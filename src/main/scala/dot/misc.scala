@@ -19,10 +19,21 @@ object misc {
   def mergeRoot[F[_]](path: Symbolic)(implicit f: Files[F]): F[Unit] = f.mergeRoot(path.src, path.dst)
 
   object systemd {
+
+    private def enabled[F[_] : Sync](unit: String)(implicit sh: Shell[F]): F[Boolean] =
+      sh.slurp(s"systemctl is-enabled $unit | grep enabled").failed.map(failed => !failed)
+
+    private def notEnabled[F[_] : Sync](unit: String)(implicit sh: Shell[F]): F[Boolean] =
+      enabled(unit).map(enabled => !enabled)
+
     def enable[F[_] : Sync](service: String)(implicit sh: Shell[F]): F[Unit] =
-      when(sh.slurp(s"systemctl is-enabled $service | grep enabled").failed) {
+      when(notEnabled(service)) {
         sh.interactive(s"sudo systemctl enable $service").attempt
       }
+
+    def start[F[_] : Sync](unit: String)(implicit sh: Shell[F]): F[Unit] =
+      sh.interactive(s"sudo systemctl start $unit").attempt
+
   }
 
   object sys {

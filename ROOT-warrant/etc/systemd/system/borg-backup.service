@@ -1,0 +1,10 @@
+[Unit]
+Description= Runs borg backups
+
+[Service]
+Type= simple
+User= fred
+ExecStart= /bin/sh /opt/my-borg-backup/run.sh
+
+[Install]
+WantedBy= multi-user.target

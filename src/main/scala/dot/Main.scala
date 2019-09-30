@@ -14,15 +14,12 @@ object Main extends IOApp {
   val autostart = Sym.~ / ".config" / "autostart"
   val bin = Sym.~ / "bin"
 
-  def mergeVault[F[_] : Sync](name: String, dst: AbsPath, useForHash: AbsPath => Boolean = _ => true)(implicit s: Secure[F], o: Out[F]): F[Unit] =
-    s.mergeVeraDir(vault / name, vault / s"$name.hash", dst, useForHash)
-
   def userBinary[F[_]: Sync](name: String)(implicit f: Files[F]): F[Unit] = {
     val pth = bin / name
     merge(pth) *> f.makeExecutable(pth.dst)
   }
 
-  def install[F[_] : Sync](implicit p: Pkg[F], ex: Exec[F], sh: Shell[F], f: Files[F], out: Out[F], sec: Secure[F]): F[Unit] = {
+  def install[F[_] : Sync](implicit p: Pkg[F], ex: Exec[F], sh: Shell[F], f: Files[F], out: Out[F]): F[Unit] = {
     val warrantQuirks = List(
       pac("playerctl"),
       pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc"),
@@ -53,7 +50,6 @@ object Main extends IOApp {
       sys.shell("/bin/zsh"),
 
       // ssh
-      // mergeVault("ssh", Abs.~ / ".ssh", _.filename != "known_hosts"),
       // TODO: sshrc
 
       // browser
@@ -84,7 +80,6 @@ object Main extends IOApp {
       // dev
       pac("jdk8-openjdk", "scala", "sbt", "cloc", "gradle"),
       aur("ammonite", "dbeaver", "intellij-idea-community-edition", "slack-desktop"),
-      mergeVault("gradle", Abs.~ / ".gradle", _.filename == "gradle.properties"),
 
       // ops
       pac("python2-pip", "aws-cli", "terraform"),
@@ -94,7 +89,7 @@ object Main extends IOApp {
       },
 
       merge(Sym.~ / ".aws" / "config"),
-      mergeVault("aws", Abs.~ / ".aws", _.filename == "credentials"),
+      //mergeVault("aws", Abs.~ / ".aws", _.filename == "credentials"),
 
       pac("docker", "docker-compose"),
       sys.addUserToGroup("docker"),
@@ -133,6 +128,15 @@ object Main extends IOApp {
       // misc apps
       pac("vlc", "smplayer"),
 
+      host()
+          .flatMap(hostName =>
+            mergeRoot(Sym.ROOT(hostName) / "etc" / "systemd" / "system" / "borg-backup.service") *>
+            mergeRoot(Sym.ROOT(hostName) / "etc" / "systemd" / "system" / "borg-backup.timer")
+          ),
+
+      systemd.enable("borg-backup"),
+      systemd.start("borg-backup.timer"),
+
       // quirks
       quirks,
     ).sequence_
@@ -144,7 +148,6 @@ object Main extends IOApp {
     implicit val out: OutImpl[IO] = new OutImpl[IO]
     implicit val pkg: PkgImpl[IO] = new PkgImpl[IO](ex, out)
     implicit val f: FilesImpl[IO] = new FilesImpl[IO](ex, sh)
-    implicit val sec: SecureImpl[IO] = new SecureImpl[IO](sh, f, out)
 
     install[IO]
       .as(ExitCode.Success)

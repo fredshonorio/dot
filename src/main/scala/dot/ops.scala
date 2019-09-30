@@ -22,6 +22,7 @@ object Symbolic {
 
   def HOME: Symbolic = mk(AbsPath.CWD / "HOME", AbsPath.HOME)
   def ROOT: Symbolic = mk(AbsPath.CWD / "ROOT", AbsPath.ROOT)
+  def ROOT(hostName: String): Symbolic = mk(AbsPath.CWD / s"ROOT-$hostName", AbsPath.ROOT)
   def `~`: Symbolic = HOME
 }
 
@@ -86,10 +87,6 @@ trait Files[F[_]] {
 
 trait XFCE[F[_]] {
   def unsetKb(path: String): F[Unit]
-}
-
-trait Secure[F[_]] {
-  def mergeVeraDir(veraVolume: AbsPath, hashFile: AbsPath, dst: AbsPath, useForHash: AbsPath => Boolean ): F[Unit]
 }
 
 trait Out[F[_]] {

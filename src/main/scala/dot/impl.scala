@@ -2,11 +2,10 @@ package dot
 
 import java.util.Random
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{Sync}
 import cats.implicits._
 import dot.exec.{Exec, Interactive, Proc, Shell, Slurp}
 import dot.syntax.{not, when}
-import javax.xml.bind.DatatypeConverter
 import org.zeroturnaround.exec.ProcessExecutor
 
 import scala.collection.JavaConverters._
@@ -151,98 +150,6 @@ object impl {
 
     override def list(path: AbsPath): F[List[AbsPath]] =
       Sync[F].delay(new File(path.raw).list().toList.map(path / _))
-  }
-
-
-  class SecureImpl[F[_] : Sync](sh: Shell[F], f: Files[F], o: Out[F]) extends Secure[F] {
-
-    case class MD5 private(bytes: Array[Byte]) {
-      def xor(other: MD5): MD5 = {
-        def xorBytes(a: Array[Byte], b: Array[Byte]): Array[Byte] = // assume same length
-          a.zip(b).map { case (x, y) => (x ^ y).byteValue() }
-
-        MD5(xorBytes(bytes, other.bytes))
-      }
-
-      override def equals(o: Any): Boolean = o match {
-        case md: MD5 => bytes.sameElements(md.bytes)
-        case _ => false
-      }
-
-      override def toString: String = s"MD5(${DatatypeConverter.printHexBinary(bytes)})"
-    }
-
-    object MD5 {
-      def mk(bytes: Array[Byte]): Either[String, MD5] =
-        Either.cond(bytes.length == 16, new MD5(bytes), s"Invalid md5, expected 16 bytes, got ${bytes.length}")
-
-      def zero: MD5 = new MD5(Array.fill[Byte](16)(0))
-    }
-
-    def hashAll(paths: List[AbsPath]): F[MD5] = {
-      def parse(md5Out: String): F[MD5] =
-        Sync[F].pure(md5Out.trim().split(" "))
-          .ensure(new RuntimeException(s"Can't parse '$md5Out'"))(_.length >= 2)
-          .map(_ (0).trim)
-          .flatMap(hexStr => Sync[F].delay(DatatypeConverter.parseHexBinary(hexStr)))
-          .ensure(new RuntimeException(s"Can't parse '$md5Out'"))(_.length == 16)
-          .flatMap(bytes => Sync[F].fromEither(
-            MD5.mk(bytes).leftMap(new RuntimeException(_))
-          ))
-
-      def hashOne(p: AbsPath): F[MD5] = sh.slurp(s"md5sum ${p.raw}").out >>= parse
-
-      def combine(xs: List[MD5]): MD5 = xs.foldLeft(MD5.zero)(_.xor(_))
-
-      paths.sortBy(_.raw).traverse(hashOne).map(combine)
-    }
-
-    def writeHash(file: AbsPath)(md5: MD5): F[Unit] = Sync[F].delay {
-      val _ = java.nio.file.Files.write(file.path, md5.bytes)
-    }
-
-    def readHash(file: AbsPath): F[MD5] =
-      Sync[F].delay(java.nio.file.Files.readAllBytes(file.path))
-        .flatMap(bytes => Sync[F].fromEither(MD5.mk(bytes).leftMap(new RuntimeException(_))))
-
-    override def mergeVeraDir(veraVolume: AbsPath, hashFile: AbsPath, dst: AbsPath, hashedFiles: AbsPath => Boolean): F[Unit] = {
-
-      def withMount(image: AbsPath): Resource[F, AbsPath] = {
-        val acquire = for {
-          mountPoint <- sh.slurp("mktemp -d").out.map(_.trim).map(AbsPath.unsafe)
-          _ <- sh.interactive(s"veracrypt --mount ${image.raw} ${mountPoint.raw}").attempt
-        } yield mountPoint
-
-        val release: F[Unit] = sh.interactive(s"veracrypt --dismount ${image.raw}").attempt
-
-        Resource.make(acquire)(_ => release)
-      }
-
-      def hashFiles(root: AbsPath): F[MD5] =
-        for {
-          files <- f.list(root).map(_.filter(hashedFiles))
-          hash <- hashAll(files)
-          _ <- o.println("Hashing:\n\t" + files.map(_.raw).mkString("\n\t") + "\n" + hash.toString)
-        } yield hash
-
-      val read =
-        for {
-          hash <- readHash(hashFile)
-          _ <- o.println(s"Cached hash for ${veraVolume.raw}\n${hash.toString}")
-        } yield hash
-
-      val shouldUpdate = f.exists(hashFile)
-        .ifM(
-          (hashFiles(dst), read).mapN((dstHash, previousHash) => dstHash != previousHash),
-          Sync[F].pure(true)
-        )
-
-      val mergeAndHash: F[Unit] =
-        withMount(veraVolume)
-          .use(decrypted => f.merge(decrypted, dst) *> hashFiles(dst) >>= writeHash(hashFile))
-
-      shouldUpdate.ifM(o.println(s"Opening ${veraVolume.raw}") *> mergeAndHash, Sync[F].unit)
-    }
   }
 
 }

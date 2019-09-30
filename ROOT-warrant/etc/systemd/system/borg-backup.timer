@@ -1,0 +1,9 @@
+[Unit]
+Description= Runs borg backups
+
+[Timer]
+OnCalendar= *-*-* 16:45
+Unit= borg-backup.service
+
+[Install]
+WantedBy= multi-user.target
