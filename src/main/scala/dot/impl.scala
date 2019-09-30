@@ -75,7 +75,7 @@ object impl {
       when(not(installed(pkg)))(out.println(s"Installing $pkg") *> action)
 
     override def aur(pkg: String): F[Unit] =
-      ifNotInstalled(pkg)(exec.interactive("trizen", "-S", pkg, "--needed").attempt)
+      ifNotInstalled(pkg)(exec.interactive("yay", "-S", pkg, "--needed").attempt)
 
     override def pac(pkg: String): F[Unit] =
       ifNotInstalled(pkg)(exec.interactive("sudo", "pacman", pkg, "-S", pkg, "--needed").attempt)

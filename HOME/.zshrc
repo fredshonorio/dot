@@ -47,3 +47,8 @@ precmd () {
     # command had stopped at the point of the Ctrl+C/Enter
     CMD_START_DATE=""
 }
+
+autoload bashcompinit
+bashcompinit
+. /opt/asdf-vm/completions/asdf.bash
+. /opt/asdf-vm/asdf.sh

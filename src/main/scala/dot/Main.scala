@@ -39,8 +39,10 @@ object Main extends IOApp {
     List(
       // bootstrap
       f.replaceLine(Abs.ROOT / "etc" / "makepkg.conf", "PKGEXT='.pkg.tar.xz'", "PKGEXT='.pkg.tar'", sudoWrite = true), // disable compression for packages built from aur
-      pac("meld", "git", "trizen"),
+      pac("meld", "git", "yay"),
       mergeRoot(Sym.ROOT / "etc" / "pacman.d" / "hooks" / "paccache.hook"),
+
+      // TODO asdf-vm
 
       // shell
       pac("zsh", "bat", "lsof", "htop", "sakura", "the_silver_searcher"),
@@ -51,7 +53,7 @@ object Main extends IOApp {
       sys.shell("/bin/zsh"),
 
       // ssh
-      mergeVault("ssh", Abs.~ / ".ssh", _.filename != "known_hosts"),
+      // mergeVault("ssh", Abs.~ / ".ssh", _.filename != "known_hosts"),
       // TODO: sshrc
 
       // browser

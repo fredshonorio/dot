@@ -4,7 +4,8 @@
 export EDITOR=emacs
 export VISUAL=emacs
 export SUDO_EDITOR="emacs --no-window-system"
-export AWS_VAULT_BACKEND=secret-service
+export AWS_VAULT_BACKEND=file
+export SSH_COMMAND=sshrc
 
 export PATH="$HOME/bin:$PATH"
 
