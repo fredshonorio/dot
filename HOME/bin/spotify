@@ -1,0 +1,3 @@
+#!/bin/sh
+HOME=/home/fred/.spotify-$HOST
+/usr/bin/spotify &

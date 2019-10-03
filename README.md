@@ -12,9 +12,9 @@ Everything else is installed by the script itself. In this directory run `$ sbt 
 
 This is a list of things that have to be done manually, for now:
 
-- setup brave sync
+- enable smb, nmb
+- merge /etc/samba/smb.conf ???
 - setup firefox sync
-- setup chrome sync
 - setup chamber, aws-vault (without file backend)
 - uninstall some apps (steam-manjaro, libreoffice-still)
 - remove some xfce keybinds

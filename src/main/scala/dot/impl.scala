@@ -150,6 +150,9 @@ object impl {
 
     override def list(path: AbsPath): F[List[AbsPath]] =
       Sync[F].delay(new File(path.raw).list().toList.map(path / _))
+
+    override def mkDir(path: AbsPath): F[Unit] =
+      ex.interactive("sudo", "mkdir", "-p", path.dir.raw).attempt
   }
 
 }

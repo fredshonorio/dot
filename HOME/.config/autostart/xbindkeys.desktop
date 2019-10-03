@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Xbindkeys
+Exec=/usr/bin/xbindkeys
+Terminal=false
+Type=Application

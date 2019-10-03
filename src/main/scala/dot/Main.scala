@@ -12,17 +12,16 @@ object Main extends IOApp {
   val Abs = AbsPath
   val vault = Abs.~ / "Tresors" / "vault2"
   val autostart = Sym.~ / ".config" / "autostart"
-  val bin = Sym.~ / "bin"
 
   def userBinary[F[_]: Sync](name: String)(implicit f: Files[F]): F[Unit] = {
-    val pth = bin / name
+    val pth = Sym.~ / "bin" / name
     merge(pth) *> f.makeExecutable(pth.dst)
   }
 
   def install[F[_] : Sync](implicit p: Pkg[F], ex: Exec[F], sh: Shell[F], f: Files[F], out: Out[F]): F[Unit] = {
     val warrantQuirks = List(
       pac("playerctl"),
-      pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc"),
+      pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc") *> merge(autostart / "xbindkeys.desktop"),
       pac("xfce4-volumed-pulse"), // either this or pa-applet
       merge(autostart / "slack.desktop"),
       systemd.enable("docker")
@@ -31,6 +30,7 @@ object Main extends IOApp {
     val quirks = host() >>= {
       case "liminal" => aur("powertop") *> pac("android-udev")
       case "warrant" => warrantQuirks
+      case "witchfinder" => warrantQuirks
     }
 
     List(
@@ -53,7 +53,7 @@ object Main extends IOApp {
       // TODO: sshrc
 
       // browser
-      aur("google-chrome-beta", "firefox"),
+      aur("firefox"),
 
       // backup
       pac("veracrypt", "pass"),
@@ -101,11 +101,12 @@ object Main extends IOApp {
       pac("redshift", "nemo"),
       merge(Sym.~ / ".config" / "redshift.conf"),
       merge(autostart / "redshift-gtk.desktop"),
-      pac("xmonad", "xmonad-contrib", "xmobar", "rofi", "feh", "trayer"),
+      pac("xmonad", "xmonad-contrib", "xmobar", "feh", "trayer"),
       aur(
         "ttf-iosevka",
         "noto-fonts-emoji",
         "stlarch_icons", // icons installed in /usr/share/icons/stlarch_ico
+        "rofi",
         "rofi-dmenu" // themes in /usr/share/rofi/
       ),
       merge(Sym.~ / ".xmobarrc"),
@@ -121,6 +122,10 @@ object Main extends IOApp {
 
       aur("spotify"),
 
+      // fix for: https://community.spotify.com/t5/Desktop-Linux/spotify-connect-not-working-properly-on-linux/m-p/4595982/highlight/true#M16891
+      host() >>= ((hostname: String) => f.mkDir(Abs.~ / s".spotify-$hostname")),
+      userBinary("spotify"),
+
       // ssd
       pac("util-linux"),
       systemd.enable("fstrim.timer"),
@@ -128,14 +133,15 @@ object Main extends IOApp {
       // misc apps
       pac("vlc", "smplayer"),
 
-      host()
+      /*host()
           .flatMap(hostName =>
             mergeRoot(Sym.ROOT(hostName) / "etc" / "systemd" / "system" / "borg-backup.service") *>
             mergeRoot(Sym.ROOT(hostName) / "etc" / "systemd" / "system" / "borg-backup.timer")
           ),
+       */
 
-      systemd.enable("borg-backup"),
-      systemd.start("borg-backup.timer"),
+      /*systemd.enable("borg-backup"),
+      systemd.start("borg-backup.timer"),*/
 
       // quirks
       quirks,

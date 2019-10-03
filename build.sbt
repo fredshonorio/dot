@@ -29,4 +29,3 @@ lazy val dot = (project in file("."))
     testOptions in Test        := Seq(Tests.Filter(notInIntegrationPackage)),
     testOptions in Integration := Seq(Tests.Filter(inIntegrationPackage)),
   )
-

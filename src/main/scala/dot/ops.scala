@@ -81,6 +81,7 @@ trait Files[F[_]] {
   def exists(path: AbsPath): F[Boolean]
   def merge(from: AbsPath, to: AbsPath): F[Unit]
   def mergeRoot(from: AbsPath, to: AbsPath): F[Unit]
+  def mkDir(from: AbsPath): F[Unit]
   def replaceLine(file: AbsPath, existing: String, desired: String, sudoWrite: Boolean = false): F[Unit]
   def ensureLine(file: AbsPath, desired: String, sudoWrite: Boolean = false): F[Unit]
 }
