@@ -19,18 +19,22 @@ object Main extends IOApp {
   }
 
   def install[F[_] : Sync](implicit p: Pkg[F], ex: Exec[F], sh: Shell[F], f: Files[F], out: Out[F]): F[Unit] = {
-    val warrantQuirks = List(
+    val workstation = List(
+
+      //i use playerctl and xbindkeys with different bindings on the laptop, TODO: parameterize
       pac("playerctl"),
       pac("xbindkeys") *> merge(Sym.~ / ".xbindkeysrc") *> merge(autostart / "xbindkeys.desktop"),
+
       pac("xfce4-volumed-pulse"), // either this or pa-applet
       merge(autostart / "slack.desktop"),
+      // TODO: discord
       systemd.enable("docker")
     ).sequence_
 
     val quirks = host() >>= {
       case "liminal" => aur("powertop") *> pac("android-udev")
-      case "warrant" => warrantQuirks
-      case "witchfinder" => warrantQuirks
+      case "warrant" => workstation
+      case "witchfinder" => workstation
     }
 
     List(
@@ -123,7 +127,6 @@ object Main extends IOApp {
       aur("spotify"),
 
       // fix for: https://community.spotify.com/t5/Desktop-Linux/spotify-connect-not-working-properly-on-linux/m-p/4595982/highlight/true#M16891
-      host() >>= ((hostname: String) => f.mkDir(Abs.~ / s".spotify-$hostname")),
       userBinary("spotify"),
 
       // ssd
@@ -133,6 +136,7 @@ object Main extends IOApp {
       // misc apps
       pac("vlc", "smplayer"),
 
+      pac("borg", "python-llfuse"),
       /*host()
           .flatMap(hostName =>
             mergeRoot(Sym.ROOT(hostName) / "etc" / "systemd" / "system" / "borg-backup.service") *>
