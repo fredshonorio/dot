@@ -15,7 +15,8 @@ This is a list of things that have to be done manually, for now:
 - enable smb, nmb
 - merge /etc/samba/smb.conf ???
 - setup firefox sync
-- setup chamber, aws-vault (without file backend)
+- setup chamber, aws-vault with file backend
+- setup borg backup script
 - uninstall some apps (steam-manjaro, libreoffice-still)
 - remove some xfce keybinds
 - replace xfwm4 with  xmonad

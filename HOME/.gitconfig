@@ -13,22 +13,21 @@
     b = branch
     ba = branch -a
     lg = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr %an)%Creset' --abbrev-commit --date=relative
-    untracked = ls-files --others --exclude-standard
-    remote-branch = "!newbranch() { git checkout -b $1; git branch -u origin/$1; }; newbranch"
+    last = show -s --format=%B HEAD
+
 [core]
     editor = emacs
-
 [push]
     default = current
 [cola]
-	spellcheck = false
+    spellcheck = false
 [gui]
-	editor = emacs
+    editor = emacs
 [merge]
-	tool = meld
+    tool = meld
 [pull]
-	ff = only
+    ff = only
 [diff]
-	tool = meld
+    tool = meld
 [status]
-	showUntrackedFiles = all
+    showUntrackedFiles = all

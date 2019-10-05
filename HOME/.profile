@@ -19,7 +19,6 @@ alias m-st='emacsclient -c --eval "(progn (magit-status) (delete-other-windows))
 alias m-log='emacsclient -c --eval "(progn (magit-log-branches) (delete-other-windows))"'    # (ma)git log
 alias ducks='for i in G M K; do du -ah | grep "[0-9]$i" | sort -nr -k 1; done | head -n 11'  # top 10 largest files/directories
 alias t='(sakura -d $PWD) &> /dev/null &'                                                    # spawn another terminal in this directory
-# export _Z_EXCLUDE_DIRS=('/home/fred/Downloads' '/home/fred/z')
 
 # tar a directory <x> named <x>.tgz
 function tardir() {
