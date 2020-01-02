@@ -33,7 +33,6 @@ object Main extends IOApp {
 
     val quirks = host() >>= {
       case "liminal" => aur("powertop") *> pac("android-udev")
-      case "warrant" => workstation
       case "witchfinder" => workstation
     }
 
@@ -99,7 +98,7 @@ object Main extends IOApp {
       sys.addUserToGroup("docker"),
 
       // desktop
-      pac("gtk3-classic"), // fix issues with XEMBED tray icons introduced after gtk3-3.22.30-1
+      pac("gtk3"),
       modprobe.blacklist("uvcvideo"),
       modprobe.blacklist("pcspkr"), // disable webcam and speaker
       pac("redshift", "nemo"),
