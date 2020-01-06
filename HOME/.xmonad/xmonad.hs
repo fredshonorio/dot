@@ -2,7 +2,7 @@ import XMonad                      (XConfig(..), X(..), Window, WindowSpace
                                    , spawn, xmonad, composeAll, doFloat, stringProperty, doIgnore, className
                                    , (.|.), (<+>), (|||), (-->), (=?)
                                    , shiftMask, modMask, mod4Mask, noModMask
-                                   , xK_p, xK_c, xK_q, xK_b, xK_s, xK_f, xK_Print, xK_t
+                                   , xK_p, xK_c, xK_q, xK_b, xK_s, xK_f, xK_Print, xK_t, xK_e
                                    )
 import XMonad.Actions.SpawnOn      (spawnHere)
 import XMonad.Config.Desktop       (desktopConfig)
@@ -71,6 +71,7 @@ rofiCfg = WindowBringerConfig "rofi" ["-dmenu", "-i"] decorateName
 myKeys (XConfig {modMask = mod}) = M.fromList $
     [ ((mod,               xK_p), spawn "rofi -show run -modi run")
     , ((mod .|. shiftMask, xK_p), spawn "xfce4-appfinder")
+    , ((mod,               xK_e), spawn "nemo")
     , ((mod,               xK_c), gotoMenuConfig rofiCfg)
     , ((mod .|. shiftMask, xK_q), spawn "xfce4-session-logout")
     , ((mod .|. shiftMask, xK_t), spawn "sakura -t sakura_float -r 20 -c 150")

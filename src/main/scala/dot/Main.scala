@@ -70,7 +70,6 @@ object Main extends IOApp {
       pac("git", "gitg", "tk", "aspell-en"),
       userBinary("unpushed"),
       merge(Sym.~ / ".gitconfig"),
-      aur("git-cola"),
 
       // emacs
       pac("emacs"),
