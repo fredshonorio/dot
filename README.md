@@ -28,3 +28,7 @@ This is a list of things that have to be done manually, for now:
     - thunar -> never
     - xfwm4 -> never
   - uninstall xfdesktop
+
+
+add color pacman
+https://github.com/Jguer/yay/issues/123
